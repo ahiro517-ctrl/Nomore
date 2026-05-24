@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#ff7043" />
+  <title>腹八分目ゲーム 🍽️</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===== 設定画面 ===== -->
+    <section id="screen-setup" class="screen active">
+      <div class="hero">
+        <div class="hero-emoji">🍽️</div>
+        <h1>腹八分目ゲーム</h1>
+        <p class="tagline">2つの料理から選んで、理想の「腹八分目」を目指せ！</p>
+      </div>
+
+      <div class="card">
+        <h2>あなたのデータ</h2>
+        <div class="field-row">
+          <label>性別
+            <div class="seg" id="seg-sex">
+              <button type="button" data-val="male" class="active">男性</button>
+              <button type="button" data-val="female">女性</button>
+            </div>
+          </label>
+        </div>
+        <div class="field-grid">
+          <label>年齢
+            <input id="in-age" type="number" inputmode="numeric" min="10" max="100" value="30" />
+            <span class="unit">歳</span>
+          </label>
+          <label>身長
+            <input id="in-height" type="number" inputmode="numeric" min="120" max="220" value="170" />
+            <span class="unit">cm</span>
+          </label>
+          <label>体重
+            <input id="in-weight" type="number" inputmode="numeric" min="30" max="200" value="60" />
+            <span class="unit">kg</span>
+          </label>
+        </div>
+        <div class="field-row">
+          <label>活動レベル
+            <select id="in-activity">
+              <option value="1.2">ほとんど運動しない</option>
+              <option value="1.375">軽い運動（週1〜2）</option>
+              <option value="1.55" selected>普通（週3〜5）</option>
+              <option value="1.725">よく運動する（週6〜7）</option>
+              <option value="1.9">アスリート級</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="estimate" class="estimate"></div>
+
+        <label class="toggle">
+          <input id="in-assist" type="checkbox" />
+          <span>初心者モード（料理のカロリーと満腹度を表示）</span>
+        </label>
+      </div>
+
+      <button id="btn-start" class="primary big">ゲームスタート 🍴</button>
+
+      <details class="howto card">
+        <summary>遊び方・攻略のヒント</summary>
+        <ul>
+          <li>1食分の目標カロリーと、お腹の<b>「腹八分目（80%）」</b>を目指します。</li>
+          <li>2つの料理から食べる方をタップ。どちらも嫌なら<b>スキップ</b>。</li>
+          <li>お腹が<b>100%を超えると食べすぎで失敗</b>。引き際が肝心！</li>
+          <li>少なすぎても物足りない結果に。80%にピッタリ寄せよう。</li>
+          <li>🥗 野菜・果物・汁物 … <b>よく膨れて低カロリー</b>（健康的）</li>
+          <li>🍰 スナック・スイーツ・揚げ物 … <b>膨れないのに高カロリー</b>（罠）</li>
+          <li>満腹度とカロリーの<b>両方</b>がスコアになります。食の知識が武器！</li>
+        </ul>
+      </details>
+    </section>
+
+    <!-- ===== ゲーム画面 ===== -->
+    <section id="screen-game" class="screen">
+      <header class="game-head">
+        <div class="gauges">
+          <div class="gauge">
+            <div class="gauge-top">
+              <span class="gauge-label">🍚 満腹度</span>
+              <span class="gauge-val"><span id="fullness-val">0</span>%</span>
+            </div>
+            <div class="bar fullness-bar">
+              <div class="goodzone"></div>
+              <div class="target-line" style="left:80%"></div>
+              <div id="fullness-fill" class="fill"></div>
+            </div>
+            <div class="gauge-sub">目標 80%（腹八分目）</div>
+          </div>
+
+          <div class="gauge">
+            <div class="gauge-top">
+              <span class="gauge-label">🔥 カロリー</span>
+              <span class="gauge-val"><span id="cal-val">0</span> / <span id="cal-target">0</span>kcal</span>
+            </div>
+            <div class="bar cal-bar">
+              <div class="target-line" id="cal-target-line"></div>
+              <div id="cal-fill" class="fill"></div>
+            </div>
+            <div class="gauge-sub" id="cal-sub">目標内なら健康的</div>
+          </div>
+        </div>
+        <div class="round-info">
+          <span id="round-label">ラウンド 1 / 20</span>
+          <span id="combo-label" class="combo hidden"></span>
+        </div>
+      </header>
+
+      <div id="toast" class="toast hidden"></div>
+
+      <div class="prompt">どっちを食べる？</div>
+
+      <div class="cards">
+        <button class="food-card" id="card-0" type="button"></button>
+        <div class="vs">VS</div>
+        <button class="food-card" id="card-1" type="button"></button>
+      </div>
+
+      <div class="actions">
+        <button id="btn-skip" class="ghost" type="button">スキップ ⏭️</button>
+        <button id="btn-finish" class="primary" type="button">ごちそうさま 🙏</button>
+      </div>
+    </section>
+
+    <!-- ===== 結果画面 ===== -->
+    <section id="screen-result" class="screen">
+      <div class="result-card card">
+        <div id="result-grade" class="grade">A</div>
+        <div id="result-title" class="result-title"></div>
+        <div id="result-message" class="result-message"></div>
+
+        <div class="result-stats">
+          <div class="stat">
+            <div class="stat-val"><span id="r-fullness">0</span>%</div>
+            <div class="stat-label">満腹度（目標80%）</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val"><span id="r-cal">0</span></div>
+            <div class="stat-label">kcal（目標 <span id="r-cal-target">0</span>）</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val"><span id="r-score">0</span></div>
+            <div class="stat-label">スコア</div>
+          </div>
+        </div>
+
+        <div id="result-best" class="best"></div>
+        <div id="result-eaten" class="eaten"></div>
+      </div>
+
+      <button id="btn-replay" class="primary big" type="button">もう一回 🔄</button>
+      <button id="btn-back" class="ghost" type="button">設定を変える ⚙️</button>
+    </section>
+
+  </div>
+
+  <script src="foods.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
